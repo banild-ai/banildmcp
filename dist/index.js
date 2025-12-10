@@ -29,7 +29,7 @@ const server = createServer({
     debug: true,
 });
 console.log("🚀 banildmcp (Banild.Ai) starting...");
-console.log("🔖 Version: 2.1.1");
+console.log("🔖 Version: 2.1.2");
 console.log("👤 Author: Banild.Ai");
 console.log(`📡 Connected to: ${config.url}`);
 console.log("");

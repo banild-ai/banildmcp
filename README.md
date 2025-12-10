@@ -81,6 +81,7 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 ### Core Tools (54 - Always Available)
 
 ### 📝 Posts (15 tools)
+
 - `wordpress_create_post` - Create new posts
 - `wordpress_update_post` - Update existing posts
 - `wordpress_delete_post` - Delete posts (trash or permanent)
@@ -96,12 +97,14 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 - `wordpress_bulk_delete_posts` - Batch delete
 
 ### 📄 Pages (4 tools)
+
 - `wordpress_create_page` - Create pages with hierarchy
 - `wordpress_update_page` - Update pages
 - `wordpress_get_pages` - List pages
 - `wordpress_delete_page` - Delete pages
 
 ### 🖼️ Media (5 tools)
+
 - `wordpress_upload_media` - Upload from base64 or URL
 - `wordpress_get_media` - List media library
 - `wordpress_update_media` - Update metadata
@@ -109,28 +112,33 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 - `wordpress_set_featured_image` - Set post thumbnail
 
 ### 👥 Users (4 tools)
+
 - `wordpress_create_user` - Create with roles
 - `wordpress_get_users` - List with filtering
 - `wordpress_update_user` - Update user data
 - `wordpress_delete_user` - Delete with content reassignment
 
 ### 📁 Categories (4 tools)
+
 - `wordpress_create_category` - Create with hierarchy
 - `wordpress_get_categories` - List all
 - `wordpress_update_category` - Update
 - `wordpress_delete_category` - Delete
 
 ### 🏷️ Tags (2 tools)
+
 - `wordpress_create_tag` - Create tags
 - `wordpress_get_tags` - List tags
 
 ### 💬 Comments (4 tools)
+
 - `wordpress_create_comment` - Add comments
 - `wordpress_get_comments` - List with filtering
 - `wordpress_update_comment` - Moderate/edit
 - `wordpress_delete_comment` - Remove
 
 ### ⚙️ Site Management (6 tools)
+
 - `wordpress_get_site_info` - Site information & routes
 - `wordpress_test_connection` - Test authentication
 - `wordpress_get_settings` - Get site settings
@@ -139,27 +147,32 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 - `wordpress_get_themes` - List installed themes
 
 ### 🔌 Plugin Management (3 tools)
+
 - `wordpress_install_plugin` - Install by slug or URL
 - `wordpress_activate_plugin` - Activate plugins
 - `wordpress_search_plugins` - Search WordPress.org
 
 ### 🔍 SEO & Meta (2 tools)
+
 - `wordpress_set_seo_meta` - Yoast/Rank Math/AIOSEO support
 - `wordpress_set_custom_meta` - Custom post meta
 
 ### 📦 Custom Post Types (4 tools)
+
 - `wordpress_get_cpt` - Get CPT items
 - `wordpress_create_cpt` - Create CPT items
 - `wordpress_update_cpt` - Update CPT items
 - `wordpress_delete_cpt` - Delete CPT items
 
 ### 🛒 WooCommerce (4 tools)
+
 - `woocommerce_get_products` - List products
 - `woocommerce_create_product` - Create products
 - `woocommerce_update_product` - Update products
 - `woocommerce_delete_product` - Delete products
 
 ### ⚛️ React Integration (1 tool)
+
 - `wordpress_create_react_page` - Create pages with React components
 
 ### 📂 BanildTools Extended Tools (23 tools) - Requires Plugin
@@ -167,6 +180,7 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 > These tools are **dynamically loaded** only when [BanildTools WordPress plugin](https://github.com/banild-ai/banildtools) is detected
 
 #### File Operations (12 tools)
+
 - `banildtools_read_file` - Read file contents with optional line range
 - `banildtools_write_file` - Create or overwrite files
 - `banildtools_append_file` - Append content to files (for large files)
@@ -181,6 +195,7 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 - `banildtools_copy` - Copy files/directories
 
 #### WordPress Options & Transients (6 tools)
+
 - `banildtools_get_option` - Get WordPress option value
 - `banildtools_set_option` - Set WordPress option
 - `banildtools_delete_option` - Delete WordPress option
@@ -189,6 +204,7 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 - `banildtools_delete_transient` - Delete transient
 
 #### Server & Database Tools (5 tools)
+
 - `banildtools_debug_log` - Read, tail, or clear debug.log
 - `banildtools_php_lint` - Check PHP syntax for errors
 - `banildtools_clear_cache` - Clear WordPress caches
@@ -207,16 +223,19 @@ Uses WordPress Application Passwords:
 ## 📋 Examples
 
 ### Create a Blog Post
+
 ```
 Create a new blog post titled "AI in 2025" with content about artificial intelligence trends. Schedule it for next Monday at 9 AM.
 ```
 
 ### Manage Media
+
 ```
 Upload this image URL to WordPress and set it as the featured image for post ID 42.
 ```
 
 ### File Operations (requires BanildTools plugin)
+
 ```
 Read the contents of wp-content/themes/mytheme/functions.php
 
@@ -230,6 +249,7 @@ Execute a SQL query to count all published posts
 ```
 
 ### WooCommerce
+
 ```
 List all products under $50 and update their prices by 10%.
 ```
@@ -244,6 +264,7 @@ To use file operations, install the BanildTools WordPress plugin:
 4. Enable write/delete operations as needed
 
 Security features:
+
 - Path restrictions to allowed directories
 - Blocked file extensions
 - Separate write/delete permission toggles
