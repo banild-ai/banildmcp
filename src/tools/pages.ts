@@ -9,7 +9,7 @@ export function registerPageTools(server: any) {
   server.tool(
     "wordpress_create_page",
     async (args: any) => {
-      const { title, content, status = "draft", parent = 0 } = args;
+      const { title, content = "", status = "draft", parent = 0 } = args;
       try {
         const page = await callWordPressAPI("/pages", "POST", {
           title,
@@ -24,7 +24,12 @@ export function registerPageTools(server: any) {
     },
     {
       description: "Create a new WordPress page with hierarchy support",
-      schema: { title: "string", content: "string" },
+      schema: { 
+        title: "string",       // Required: Page title
+        content: "string?",    // Optional: Page content (HTML)
+        status: "string?",     // Optional: 'draft', 'publish', 'pending', 'private' (default: 'draft')
+        parent: "number?"      // Optional: Parent page ID for hierarchy (default: 0)
+      },
     }
   );
 
@@ -64,7 +69,12 @@ export function registerPageTools(server: any) {
     },
     {
       description: "Get pages with hierarchy and ordering",
-      schema: { perPage: "number", page: "number" },
+      schema: { 
+        perPage: "number?",    // Optional: Results per page (default: 10)
+        page: "number?",       // Optional: Page number (default: 1)
+        parent: "number?",     // Optional: Filter by parent page ID
+        status: "string?"      // Optional: 'publish', 'draft', 'pending' (default: 'publish')
+      },
     }
   );
 
@@ -85,7 +95,10 @@ export function registerPageTools(server: any) {
     },
     {
       description: "Delete a page",
-      schema: { pageId: "number", force: "boolean" },
+      schema: { 
+        pageId: "number",      // Required: Page ID to delete
+        force: "boolean?"      // Optional: Permanently delete (default: false, moves to trash)
+      },
     }
   );
 }

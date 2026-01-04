@@ -26,7 +26,11 @@ export function registerMediaTools(server: any) {
     },
     {
       description: "Upload image or file to WordPress media library (provide base64 encoded file or URL)",
-      schema: { fileBase64: "string", filename: "string" },
+      schema: { 
+        fileUrl: "string?",      // Optional: URL to fetch the file from
+        fileBase64: "string?",   // Optional: Base64 encoded file content
+        filename: "string"       // Required: Name for the uploaded file
+      },
     }
   );
 

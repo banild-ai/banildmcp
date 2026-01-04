@@ -32,7 +32,13 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Create a new WordPress user with roles",
-      schema: { username: "string", email: "string", password: "string" },
+      schema: { 
+        username: "string",    // Required: Username
+        email: "string",       // Required: Email address
+        password: "string",    // Required: Password
+        roles: "array?",       // Optional: Array of roles (default: ['subscriber'])
+        name: "string?"        // Optional: Display name
+      },
     }
   );
 
@@ -56,7 +62,12 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Get WordPress users with role filtering",
-      schema: { perPage: "number", page: "number" },
+      schema: { 
+        perPage: "number?",    // Optional: Results per page (default: 10)
+        page: "number?",       // Optional: Page number (default: 1)
+        roles: "string?",      // Optional: Filter by role
+        search: "string?"      // Optional: Search term
+      },
     }
   );
 
@@ -93,7 +104,10 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Delete a user (reassign their content to another user)",
-      schema: { userId: "number", reassign: "number" },
+      schema: { 
+        userId: "number",      // Required: User ID to delete
+        reassign: "number?"    // Optional: User ID to reassign content to
+      },
     }
   );
 
@@ -116,7 +130,12 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Create a new category with hierarchical support",
-      schema: { name: "string" },
+      schema: { 
+        name: "string",        // Required: Category name
+        description: "string?", // Optional: Category description
+        parent: "number?",     // Optional: Parent category ID (default: 0)
+        slug: "string?"        // Optional: URL slug
+      },
     }
   );
 
@@ -148,7 +167,11 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Get all categories with hierarchy",
-      schema: {},
+      schema: {
+        perPage: "number?",    // Optional: Results per page (default: 100)
+        parent: "number?",     // Optional: Filter by parent ID
+        hideEmpty: "boolean?"  // Optional: Hide empty categories (default: false)
+      },
     }
   );
 
@@ -191,7 +214,10 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Delete a category",
-      schema: { categoryId: "number", force: "boolean" },
+      schema: { 
+        categoryId: "number",  // Required: Category ID to delete
+        force: "boolean?"      // Optional: Force delete (default: false)
+      },
     }
   );
 
@@ -214,7 +240,11 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Create a new tag",
-      schema: { name: "string" },
+      schema: { 
+        name: "string",        // Required: Tag name
+        description: "string?", // Optional: Tag description
+        slug: "string?"        // Optional: URL slug
+      },
     }
   );
 
@@ -244,7 +274,10 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Get all tags",
-      schema: {},
+      schema: {
+        perPage: "number?",    // Optional: Results per page (default: 100)
+        hideEmpty: "boolean?"  // Optional: Hide empty tags (default: false)
+      },
     }
   );
 
@@ -265,7 +298,12 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Create a comment on a post",
-      schema: { postId: "number", content: "string" },
+      schema: { 
+        postId: "number",      // Required: Post ID to comment on
+        content: "string",     // Required: Comment content
+        author: "string?",     // Optional: Author name
+        authorEmail: "string?" // Optional: Author email
+      },
     }
   );
 
@@ -288,7 +326,11 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Get comments with filtering by post and status",
-      schema: { perPage: "number" },
+      schema: { 
+        postId: "number?",     // Optional: Filter by post ID
+        perPage: "number?",    // Optional: Results per page (default: 10)
+        status: "string?"      // Optional: 'approve', 'hold', 'spam' (default: 'approve')
+      },
     }
   );
 
@@ -308,7 +350,11 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Update comment (approve, spam, trash, edit content)",
-      schema: { commentId: "number" },
+      schema: { 
+        commentId: "number",   // Required: Comment ID to update
+        status: "string?",     // Optional: 'approve', 'hold', 'spam', 'trash'
+        content: "string?"     // Optional: New comment content
+      },
     }
   );
 
@@ -331,7 +377,10 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Delete a comment",
-      schema: { commentId: "number", force: "boolean" },
+      schema: { 
+        commentId: "number",   // Required: Comment ID to delete
+        force: "boolean?"      // Optional: Permanently delete (default: false)
+      },
     }
   );
 
@@ -484,7 +533,11 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Install a plugin by WordPress.org slug or by zip URL. Optionally activate after install.",
-      schema: { slug: "string", zipUrl: "string", activate: "boolean" },
+      schema: { 
+        slug: "string?",       // Optional: WordPress.org plugin slug
+        zipUrl: "string?",     // Optional: URL to plugin ZIP file
+        activate: "boolean?"   // Optional: Activate after install (default: false)
+      },
     }
   );
 
@@ -519,7 +572,10 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Activate an installed plugin. Provide pluginFile or slug to resolve it.",
-      schema: { pluginFile: "string", slug: "string" },
+      schema: { 
+        pluginFile: "string?", // Optional: Plugin file path (e.g., 'akismet/akismet.php')
+        slug: "string?"        // Optional: Plugin slug to find
+      },
     }
   );
 
@@ -540,7 +596,11 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Search WordPress.org plugin directory by keyword",
-      schema: { query: "string", page: "number", perPage: "number" },
+      schema: { 
+        query: "string",       // Required: Search keyword
+        page: "number?",       // Optional: Page number (default: 1)
+        perPage: "number?"     // Optional: Results per page (default: 10)
+      },
     }
   );
 
@@ -620,7 +680,17 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Set SEO metadata for posts and WooCommerce products (Yoast/Rank Math/AIOSEO)",
-      schema: { postId: "number?" },
+      schema: { 
+        postId: "number?",           // Optional: Post ID (provide postId or productId)
+        productId: "number?",        // Optional: WooCommerce product ID
+        metaDescription: "string?",  // Optional: Meta description
+        focusKeyword: "string?",     // Optional: Focus keyword
+        canonicalUrl: "string?",     // Optional: Canonical URL
+        ogTitle: "string?",          // Optional: Open Graph title
+        ogDescription: "string?",    // Optional: Open Graph description
+        twitterTitle: "string?",     // Optional: Twitter card title
+        twitterDescription: "string?" // Optional: Twitter card description
+      },
     }
   );
 
@@ -664,7 +734,10 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Get custom post type items",
-      schema: { type: "string", params: "object" },
+      schema: { 
+        type: "string",        // Required: Custom post type name
+        params: "object?"      // Optional: Query parameters
+      },
     }
   );
 
@@ -716,7 +789,11 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Delete a custom post type item",
-      schema: { type: "string", id: "number", force: "boolean" },
+      schema: { 
+        type: "string",        // Required: Custom post type name
+        id: "number",          // Required: Item ID to delete
+        force: "boolean?"      // Optional: Force delete (default: false)
+      },
     }
   );
 
@@ -742,7 +819,11 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Get WooCommerce products",
-      schema: { perPage: "number", page: "number", search: "string" },
+      schema: { 
+        perPage: "number?",    // Optional: Results per page (default: 20)
+        page: "number?",       // Optional: Page number (default: 1)
+        search: "string?"      // Optional: Search term
+      },
     }
   );
 
@@ -756,7 +837,18 @@ export function registerAllFeatureTools(server: any) {
         return Responses.error(`Failed to create product: ${error.message}`);
       }
     },
-    { description: "Create WooCommerce product", schema: {} }
+    { 
+      description: "Create WooCommerce product", 
+      schema: {
+        name: "string",        // Required: Product name
+        type: "string?",       // Optional: 'simple', 'variable', etc. (default: 'simple')
+        regular_price: "string?", // Optional: Regular price
+        description: "string?", // Optional: Product description
+        short_description: "string?", // Optional: Short description
+        categories: "array?",  // Optional: Array of category objects
+        images: "array?"       // Optional: Array of image objects
+      } 
+    }
   );
 
   server.tool(
@@ -792,7 +884,10 @@ export function registerAllFeatureTools(server: any) {
     },
     {
       description: "Delete WooCommerce product",
-      schema: { id: "number", force: "boolean" },
+      schema: { 
+        id: "number",          // Required: Product ID to delete
+        force: "boolean?"      // Optional: Permanently delete (default: true)
+      },
     }
   );
 
@@ -821,11 +916,11 @@ export function registerAllFeatureTools(server: any) {
     {
       description: "Create a WordPress page that mounts an external React component",
       schema: {
-        title: "string",
-        componentUrl: "string",
-        componentName: "string",
-        props: "object",
-        status: "string",
+        title: "string",       // Required: Page title
+        componentUrl: "string", // Required: URL to React component bundle
+        componentName: "string", // Required: Window-exported component name
+        props: "object?",      // Optional: Props to pass to component
+        status: "string?"      // Optional: 'publish', 'draft' (default: 'publish')
       },
     }
   );

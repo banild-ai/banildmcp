@@ -9,7 +9,7 @@ export function registerPostTools(server: any) {
   server.tool(
     "wordpress_create_post",
     async (args: any) => {
-      const { title, content, status = "draft", categories, tags } = args;
+      const { title, content = "", status = "draft", categories, tags } = args;
       try {
         const postData: any = { title, content, status };
         if (categories) postData.categories = categories;
@@ -26,7 +26,13 @@ export function registerPostTools(server: any) {
     {
       description:
         "Create a new WordPress post with full control over all post properties",
-      schema: { title: "string", content: "string" },
+      schema: { 
+        title: "string",           // Required: Post title
+        content: "string?",        // Optional: Post content (HTML)
+        status: "string?",         // Optional: 'draft', 'publish', 'pending', 'private' (default: 'draft')
+        categories: "array?",      // Optional: Array of category IDs
+        tags: "array?"             // Optional: Array of tag IDs
+      },
     }
   );
 
@@ -46,7 +52,10 @@ export function registerPostTools(server: any) {
     },
     {
       description: "Update an existing post - can modify any post property",
-      schema: { postId: "number", updates: "object" },
+      schema: { 
+        postId: "number",      // Required: Post ID to update
+        updates: "object"      // Required: Object with properties to update (title, content, status, etc)
+      },
     }
   );
 
@@ -70,7 +79,10 @@ export function registerPostTools(server: any) {
     {
       description:
         "Delete a post. Set force=true to permanently delete, otherwise moves to trash",
-      schema: { postId: "number", force: "boolean" },
+      schema: { 
+        postId: "number",      // Required: Post ID to delete
+        force: "boolean?"      // Optional: Permanently delete (default: false)
+      },
     }
   );
 
@@ -100,11 +112,11 @@ export function registerPostTools(server: any) {
       description:
         "Get posts with advanced filtering: search, author, categories, tags, status, ordering",
       schema: {
-        perPage: "number",
-        page: "number",
-        status: "string",
-        orderby: "string",
-        order: "string",
+        perPage: "number?",    // Optional: Results per page (default: 10)
+        page: "number?",       // Optional: Page number (default: 1)
+        status: "string?",     // Optional: 'publish', 'draft', 'pending' (default: 'publish')
+        orderby: "string?",    // Optional: 'date', 'title', 'modified' (default: 'date')
+        order: "string?"       // Optional: 'desc' or 'asc' (default: 'desc')
       },
     }
   );
@@ -152,7 +164,10 @@ export function registerPostTools(server: any) {
     {
       description:
         "Search posts by keyword - searches title, content, and excerpt",
-      schema: { query: "string", perPage: "number" },
+      schema: { 
+        query: "string",       // Required: Search keyword
+        perPage: "number?"     // Optional: Results per page (default: 10)
+      },
     }
   );
 
@@ -225,7 +240,10 @@ export function registerPostTools(server: any) {
     },
     {
       description: "Duplicate an existing post with optional new title",
-      schema: { postId: "number", newTitle: "string" },
+      schema: { 
+        postId: "number",      // Required: Post ID to duplicate
+        newTitle: "string?"    // Optional: New title (default: 'Original Title (Copy)')
+      },
     }
   );
 
@@ -331,7 +349,10 @@ export function registerPostTools(server: any) {
     },
     {
       description: "Delete multiple posts in one operation",
-      schema: { postIds: "array", force: "boolean" },
+      schema: { 
+        postIds: "array",      // Required: Array of post IDs to delete
+        force: "boolean?"      // Optional: Permanently delete (default: false)
+      },
     }
   );
 }
