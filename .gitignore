@@ -1,1 +1,8 @@
 node_modules/
+dist/
+newupdates/
+*.zip
+*.log
+.env
+.DS_Store
+coverage/
