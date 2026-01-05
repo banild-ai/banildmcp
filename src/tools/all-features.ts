@@ -7,6 +7,7 @@ import {
   callWordPressAPI,
   callWordPressRootAPI,
   callWooCommerceAPI,
+  callBanildToolsAPI,
   searchWordPressOrgPlugins,
 } from "../utils/api.js";
 import { formatUser, formatComment, buildQueryString } from "../utils/helpers.js";
@@ -660,26 +661,58 @@ export function registerAllFeatureTools(server: any) {
         if (twitterTitle) meta["_yoast_wpseo_twitter-title"] = twitterTitle;
         if (twitterDescription) meta["_yoast_wpseo_twitter-description"] = twitterDescription;
 
+        const targetId = productId || postId;
+        const objectType = productId ? "product" : "post";
+        let yoastIndexableUpdated = false;
+
+        // Step 1: Update post meta (traditional storage)
         if (productId) {
           const meta_data = Object.entries(meta).map(([key, value]) => ({ key, value }));
           await callWooCommerceAPI(`/products/${productId}`, "PUT", { meta_data });
-          return Responses.success(
-            { productId, metaFieldsSet: Object.keys(meta) },
-            `✅ Set SEO metadata for product ${productId}`
-          );
+        } else {
+          await callWordPressAPI(`/posts/${postId}`, "PUT", { meta });
         }
 
-        await callWordPressAPI(`/posts/${postId}`, "PUT", { meta });
+        // Step 2: Directly update wp_yoast_indexable table (Yoast SEO 26.6+ storage)
+        // This ensures Yoast displays the correct SEO data in the editor
+        try {
+          const indexableData: any = {
+            object_id: targetId,
+            object_type: objectType,
+          };
+          if (metaDescription) indexableData.description = metaDescription;
+          if (focusKeyword) indexableData.primary_focus_keyword = focusKeyword;
+          if (ogTitle) indexableData.open_graph_title = ogTitle;
+          if (ogDescription) indexableData.open_graph_description = ogDescription;
+          if (twitterTitle) indexableData.twitter_title = twitterTitle;
+          if (twitterDescription) indexableData.twitter_description = twitterDescription;
+          if (canonicalUrl) indexableData.canonical = canonicalUrl;
+
+          await callBanildToolsAPI("/yoast-indexable", "POST", indexableData);
+          yoastIndexableUpdated = true;
+        } catch {
+          // BanildTools endpoint not available - post meta was still set successfully
+        }
+
+        const message = productId
+          ? `✅ Set SEO metadata for product ${productId}`
+          : `✅ Set SEO metadata for post ${postId}`;
+        const suffix = yoastIndexableUpdated ? " (+ Yoast indexable)" : "";
+
         return Responses.success(
-          { postId, metaFieldsSet: Object.keys(meta) },
-          `✅ Set SEO metadata for post ${postId}`
+          { 
+            [productId ? "productId" : "postId"]: targetId, 
+            metaFieldsSet: Object.keys(meta),
+            yoastIndexableUpdated,
+          },
+          message + suffix
         );
       } catch (error: any) {
         return Responses.error(`Failed to set SEO meta: ${error.message}`);
       }
     },
     {
-      description: "Set SEO metadata for posts and WooCommerce products (Yoast/Rank Math/AIOSEO)",
+      description: "Set SEO metadata for posts/products. Updates both post meta AND wp_yoast_indexable table for Yoast SEO 26.6+ compatibility (requires BanildTools plugin).",
       schema: { 
         postId: "number?",           // Optional: Post ID (provide postId or productId)
         productId: "number?",        // Optional: WooCommerce product ID
