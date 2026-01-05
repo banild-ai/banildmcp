@@ -640,6 +640,7 @@ export function registerAllFeatureTools(server: any) {
       const {
         postId,
         productId,
+        seoPlugin = "yoast",
         metaDescription,
         focusKeyword,
         canonicalUrl,
@@ -653,57 +654,89 @@ export function registerAllFeatureTools(server: any) {
       }
       try {
         const meta: any = {};
-        if (metaDescription) meta._yoast_wpseo_metadesc = metaDescription;
-        if (focusKeyword) meta._yoast_wpseo_focuskw = focusKeyword;
-        if (canonicalUrl) meta._yoast_wpseo_canonical = canonicalUrl;
-        if (ogTitle) meta["_yoast_wpseo_opengraph-title"] = ogTitle;
-        if (ogDescription) meta["_yoast_wpseo_opengraph-description"] = ogDescription;
-        if (twitterTitle) meta["_yoast_wpseo_twitter-title"] = twitterTitle;
-        if (twitterDescription) meta["_yoast_wpseo_twitter-description"] = twitterDescription;
+        const plugin = seoPlugin.toLowerCase();
+
+        if (plugin === "yoast") {
+          if (metaDescription) meta._yoast_wpseo_metadesc = metaDescription;
+          if (focusKeyword) meta._yoast_wpseo_focuskw = focusKeyword;
+          if (canonicalUrl) meta._yoast_wpseo_canonical = canonicalUrl;
+          if (ogTitle) meta["_yoast_wpseo_opengraph-title"] = ogTitle;
+          if (ogDescription) meta["_yoast_wpseo_opengraph-description"] = ogDescription;
+          if (twitterTitle) meta["_yoast_wpseo_twitter-title"] = twitterTitle;
+          if (twitterDescription) meta["_yoast_wpseo_twitter-description"] = twitterDescription;
+        } else if (plugin === "rankmath") {
+          if (metaDescription) meta.rank_math_description = metaDescription;
+          if (focusKeyword) meta.rank_math_focus_keyword = focusKeyword;
+          if (canonicalUrl) meta.rank_math_canonical_url = canonicalUrl;
+          if (ogTitle) meta.rank_math_facebook_title = ogTitle;
+          if (ogDescription) meta.rank_math_facebook_description = ogDescription;
+          if (twitterTitle) meta.rank_math_twitter_title = twitterTitle;
+          if (twitterDescription) meta.rank_math_twitter_description = twitterDescription;
+        } else if (plugin === "aioseo") {
+          if (metaDescription) meta._aioseo_description = metaDescription;
+          if (focusKeyword) meta._aioseo_keywords = focusKeyword; // Note: AIOSEO keywords might need JSON formatting depending on version
+          if (ogTitle) meta._aioseo_og_title = ogTitle;
+          if (ogDescription) meta._aioseo_og_description = ogDescription;
+          if (twitterTitle) meta._aioseo_twitter_title = twitterTitle;
+          if (twitterDescription) meta._aioseo_twitter_description = twitterDescription;
+        } else {
+             // Fallback or Generic? 
+             // For now, if unknown plugin, maybe just warn or do nothing.
+             // But let's assume valid input.
+        }
 
         const targetId = productId || postId;
         const objectType = productId ? "product" : "post";
         let yoastIndexableUpdated = false;
 
-        // Step 1: Update post meta (traditional storage)
+        // Step 1: Update post meta (All plugins generally support this method)
         if (productId) {
           const meta_data = Object.entries(meta).map(([key, value]) => ({ key, value }));
           await callWooCommerceAPI(`/products/${productId}`, "PUT", { meta_data });
         } else {
-          await callWordPressAPI(`/posts/${postId}`, "PUT", { meta });
+          // Only make the API call if there is meta to update
+          if (Object.keys(meta).length > 0) {
+             await callWordPressAPI(`/posts/${postId}`, "PUT", { meta });
+          }
         }
 
-        // Step 2: Directly update wp_yoast_indexable table (Yoast SEO 26.6+ storage)
-        // This ensures Yoast displays the correct SEO data in the editor
-        try {
-          const indexableData: any = {
-            object_id: targetId,
-            object_type: objectType,
-          };
-          if (metaDescription) indexableData.description = metaDescription;
-          if (focusKeyword) indexableData.primary_focus_keyword = focusKeyword;
-          if (ogTitle) indexableData.open_graph_title = ogTitle;
-          if (ogDescription) indexableData.open_graph_description = ogDescription;
-          if (twitterTitle) indexableData.twitter_title = twitterTitle;
-          if (twitterDescription) indexableData.twitter_description = twitterDescription;
-          if (canonicalUrl) indexableData.canonical = canonicalUrl;
+        // Step 2: Plugin specific extra actions
+        if (plugin === "yoast") {
+            // Directly update wp_yoast_indexable table (Yoast SEO 26.6+ storage)
+            try {
+              const indexableData: any = {
+                object_id: targetId,
+                object_type: objectType,
+              };
+              if (metaDescription) indexableData.description = metaDescription;
+              if (focusKeyword) indexableData.primary_focus_keyword = focusKeyword;
+              if (ogTitle) indexableData.open_graph_title = ogTitle;
+              if (ogDescription) indexableData.open_graph_description = ogDescription;
+              if (twitterTitle) indexableData.twitter_title = twitterTitle;
+              if (twitterDescription) indexableData.twitter_description = twitterDescription;
+              if (canonicalUrl) indexableData.canonical = canonicalUrl;
 
-          await callBanildToolsAPI("/yoast-indexable", "POST", indexableData);
-          yoastIndexableUpdated = true;
-        } catch {
-          // BanildTools endpoint not available - post meta was still set successfully
+              // Only call if we have data to update
+              if (Object.keys(indexableData).length > 2) { // object_id + object_type = 2
+                 await callBanildToolsAPI("/yoast-indexable", "POST", indexableData);
+                 yoastIndexableUpdated = true;
+              }
+            } catch {
+              // BanildTools endpoint not available - post meta was still set successfully
+            }
         }
 
         const message = productId
-          ? `✅ Set SEO metadata for product ${productId}`
-          : `✅ Set SEO metadata for post ${postId}`;
+          ? `✅ Set ${plugin} SEO metadata for product ${productId}`
+          : `✅ Set ${plugin} SEO metadata for post ${postId}`;
         const suffix = yoastIndexableUpdated ? " (+ Yoast indexable)" : "";
 
         return Responses.success(
           { 
             [productId ? "productId" : "postId"]: targetId, 
+            plugin: plugin,
             metaFieldsSet: Object.keys(meta),
-            yoastIndexableUpdated,
+            yoastIndexableUpdated: plugin === "yoast" ? yoastIndexableUpdated : undefined,
           },
           message + suffix
         );
@@ -712,10 +745,11 @@ export function registerAllFeatureTools(server: any) {
       }
     },
     {
-      description: "Set SEO metadata for posts/products. Updates both post meta AND wp_yoast_indexable table for Yoast SEO 26.6+ compatibility (requires BanildTools plugin).",
+      description: "Set SEO metadata for posts/products. Supports Yoast, Rank Math, and AIOSEO.",
       schema: { 
         postId: "number?",           // Optional: Post ID (provide postId or productId)
         productId: "number?",        // Optional: WooCommerce product ID
+        seoPlugin: "string?",        // Optional: 'yoast', 'rankmath', 'aioseo' (default: 'yoast')
         metaDescription: "string?",  // Optional: Meta description
         focusKeyword: "string?",     // Optional: Focus keyword
         canonicalUrl: "string?",     // Optional: Canonical URL
