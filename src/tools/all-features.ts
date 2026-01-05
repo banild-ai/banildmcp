@@ -864,14 +864,83 @@ export function registerAllFeatureTools(server: any) {
     "woocommerce_create_product",
     async (args: any) => {
       try {
-        // Ensure price fields are strings (WooCommerce API requirement)
         const productData = { ...args };
+        
+        // Ensure price fields are strings (WooCommerce API requirement)
         if (productData.regular_price !== undefined) {
           productData.regular_price = String(productData.regular_price);
         }
         if (productData.sale_price !== undefined) {
           productData.sale_price = String(productData.sale_price);
         }
+        
+        // Handle categories - WooCommerce expects [{id: X}] format
+        if (productData.categories !== undefined) {
+          let categories = productData.categories;
+          
+          // If it's a string, try to find the category by slug/name
+          if (typeof categories === "string") {
+            try {
+              const allCats = await callWooCommerceAPI(`/products/categories?per_page=100`);
+              const found = allCats.find((c: any) => 
+                c.slug === categories.toLowerCase() || 
+                c.name.toLowerCase() === categories.toLowerCase()
+              );
+              if (found) {
+                productData.categories = [{ id: found.id }];
+              } else {
+                // Category not found, remove it to avoid error
+                delete productData.categories;
+              }
+            } catch {
+              delete productData.categories;
+            }
+          } else if (Array.isArray(categories)) {
+            // Convert array items to proper format
+            const formattedCats: any[] = [];
+            for (const cat of categories) {
+              if (typeof cat === "object" && cat.id) {
+                formattedCats.push({ id: cat.id });
+              } else if (typeof cat === "number") {
+                formattedCats.push({ id: cat });
+              } else if (typeof cat === "string") {
+                // Try to find by slug/name
+                try {
+                  const allCats = await callWooCommerceAPI(`/products/categories?per_page=100`);
+                  const found = allCats.find((c: any) => 
+                    c.slug === cat.toLowerCase() || 
+                    c.name.toLowerCase() === cat.toLowerCase()
+                  );
+                  if (found) formattedCats.push({ id: found.id });
+                } catch { /* skip invalid category */ }
+              }
+            }
+            productData.categories = formattedCats.length > 0 ? formattedCats : undefined;
+            if (!productData.categories) delete productData.categories;
+          }
+        }
+        
+        // Handle images - WooCommerce expects [{src: "url"}] format
+        if (productData.images !== undefined) {
+          let images = productData.images;
+          if (typeof images === "string") {
+            // Single URL string
+            if (images.trim()) {
+              productData.images = [{ src: images }];
+            } else {
+              delete productData.images;
+            }
+          } else if (Array.isArray(images)) {
+            const formattedImages = images.map((img: any) => {
+              if (typeof img === "string") return { src: img };
+              if (typeof img === "object" && (img.src || img.id)) return img;
+              return null;
+            }).filter(Boolean);
+            productData.images = formattedImages.length > 0 ? formattedImages : undefined;
+            if (!productData.images) delete productData.images;
+          }
+        }
+        
         const product = await callWooCommerceAPI(`/products`, "POST", productData);
         return Responses.success(product, `✅ Created product: ${product.name}`);
       } catch (error: any) {
@@ -897,14 +966,77 @@ export function registerAllFeatureTools(server: any) {
     async (args: any) => {
       const { id, updates } = args;
       try {
-        // Ensure price fields are strings (WooCommerce API requirement)
         const productUpdates = { ...updates };
+        
+        // Ensure price fields are strings (WooCommerce API requirement)
         if (productUpdates.regular_price !== undefined) {
           productUpdates.regular_price = String(productUpdates.regular_price);
         }
         if (productUpdates.sale_price !== undefined) {
           productUpdates.sale_price = String(productUpdates.sale_price);
         }
+        
+        // Handle categories - WooCommerce expects [{id: X}] format
+        if (productUpdates.categories !== undefined) {
+          let categories = productUpdates.categories;
+          if (typeof categories === "string") {
+            try {
+              const allCats = await callWooCommerceAPI(`/products/categories?per_page=100`);
+              const found = allCats.find((c: any) => 
+                c.slug === categories.toLowerCase() || 
+                c.name.toLowerCase() === categories.toLowerCase()
+              );
+              if (found) {
+                productUpdates.categories = [{ id: found.id }];
+              } else {
+                delete productUpdates.categories;
+              }
+            } catch {
+              delete productUpdates.categories;
+            }
+          } else if (Array.isArray(categories)) {
+            const formattedCats: any[] = [];
+            for (const cat of categories) {
+              if (typeof cat === "object" && cat.id) {
+                formattedCats.push({ id: cat.id });
+              } else if (typeof cat === "number") {
+                formattedCats.push({ id: cat });
+              } else if (typeof cat === "string") {
+                try {
+                  const allCats = await callWooCommerceAPI(`/products/categories?per_page=100`);
+                  const found = allCats.find((c: any) => 
+                    c.slug === cat.toLowerCase() || 
+                    c.name.toLowerCase() === cat.toLowerCase()
+                  );
+                  if (found) formattedCats.push({ id: found.id });
+                } catch { /* skip */ }
+              }
+            }
+            productUpdates.categories = formattedCats.length > 0 ? formattedCats : undefined;
+            if (!productUpdates.categories) delete productUpdates.categories;
+          }
+        }
+        
+        // Handle images - WooCommerce expects [{src: "url"}] format
+        if (productUpdates.images !== undefined) {
+          let images = productUpdates.images;
+          if (typeof images === "string") {
+            if (images.trim()) {
+              productUpdates.images = [{ src: images }];
+            } else {
+              delete productUpdates.images;
+            }
+          } else if (Array.isArray(images)) {
+            const formattedImages = images.map((img: any) => {
+              if (typeof img === "string") return { src: img };
+              if (typeof img === "object" && (img.src || img.id)) return img;
+              return null;
+            }).filter(Boolean);
+            productUpdates.images = formattedImages.length > 0 ? formattedImages : undefined;
+            if (!productUpdates.images) delete productUpdates.images;
+          }
+        }
+        
         const product = await callWooCommerceAPI(`/products/${id}`, "PUT", productUpdates);
         return Responses.success(product, `✅ Updated product ${id}`);
       } catch (error: any) {
