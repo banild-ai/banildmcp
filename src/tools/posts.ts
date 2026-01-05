@@ -97,7 +97,7 @@ export function registerPostTools(server: any) {
         order = "desc",
       } = args;
       try {
-        const params = { per_page: perPage, page, status, orderby, order };
+        const params = { per_page: perPage, page, status, orderby, order: order.toLowerCase() };
         const queryString = buildQueryString(params);
         const posts = await callWordPressAPI(`/posts?${queryString}`);
         return Responses.success(
@@ -116,7 +116,7 @@ export function registerPostTools(server: any) {
         page: "number?",       // Optional: Page number (default: 1)
         status: "string?",     // Optional: 'publish', 'draft', 'pending' (default: 'publish')
         orderby: "string?",    // Optional: 'date', 'title', 'modified' (default: 'date')
-        order: "string?"       // Optional: 'desc' or 'asc' (default: 'desc')
+        order: "string?"       // Optional: 'desc' or 'asc' (default: 'desc') - ensure lowercase
       },
     }
   );

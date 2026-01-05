@@ -1,6 +1,6 @@
 {
   "name": "banildmcp",
-  "version": "2.2.7",
+  "version": "2.2.8",
   "description": "Banild MCP server for WordPress with 56 core tools (77+ with BanildTools plugin) for complete site management through AI. Dynamic tool loading via /tools endpoint discovery.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
