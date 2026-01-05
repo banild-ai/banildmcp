@@ -831,7 +831,15 @@ export function registerAllFeatureTools(server: any) {
     "woocommerce_create_product",
     async (args: any) => {
       try {
-        const product = await callWooCommerceAPI(`/products`, "POST", args);
+        // Ensure price fields are strings (WooCommerce API requirement)
+        const productData = { ...args };
+        if (productData.regular_price !== undefined) {
+          productData.regular_price = String(productData.regular_price);
+        }
+        if (productData.sale_price !== undefined) {
+          productData.sale_price = String(productData.sale_price);
+        }
+        const product = await callWooCommerceAPI(`/products`, "POST", productData);
         return Responses.success(product, `✅ Created product: ${product.name}`);
       } catch (error: any) {
         return Responses.error(`Failed to create product: ${error.message}`);
@@ -856,7 +864,15 @@ export function registerAllFeatureTools(server: any) {
     async (args: any) => {
       const { id, updates } = args;
       try {
-        const product = await callWooCommerceAPI(`/products/${id}`, "PUT", updates);
+        // Ensure price fields are strings (WooCommerce API requirement)
+        const productUpdates = { ...updates };
+        if (productUpdates.regular_price !== undefined) {
+          productUpdates.regular_price = String(productUpdates.regular_price);
+        }
+        if (productUpdates.sale_price !== undefined) {
+          productUpdates.sale_price = String(productUpdates.sale_price);
+        }
+        const product = await callWooCommerceAPI(`/products/${id}`, "PUT", productUpdates);
         return Responses.success(product, `✅ Updated product ${id}`);
       } catch (error: any) {
         return Responses.error(`Failed to update product: ${error.message}`);
