@@ -957,6 +957,21 @@ export function registerAllFeatureTools(server: any) {
         // Handle images - WooCommerce expects [{src: "url"}] format
         if (productData.images !== undefined) {
           let images = productData.images;
+          
+          // Try to parse stringified JSON (LLM sometimes sends "[{...}]" as string)
+          if (typeof images === "string") {
+            const trimmed = images.trim();
+            if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+              try {
+                images = JSON.parse(trimmed);
+                productData.images = images;
+              } catch {
+                // Not valid JSON, treat as URL
+              }
+            }
+          }
+          
+          // Now handle the normalized value
           if (typeof images === "string") {
             // Single URL string
             if (images.trim()) {
@@ -1054,6 +1069,21 @@ export function registerAllFeatureTools(server: any) {
         // Handle images - WooCommerce expects [{src: "url"}] format
         if (productUpdates.images !== undefined) {
           let images = productUpdates.images;
+          
+          // Try to parse stringified JSON (LLM sometimes sends "[{...}]" as string)
+          if (typeof images === "string") {
+            const trimmed = images.trim();
+            if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+              try {
+                images = JSON.parse(trimmed);
+                productUpdates.images = images;
+              } catch {
+                // Not valid JSON, treat as URL
+              }
+            }
+          }
+          
+          // Now handle the normalized value
           if (typeof images === "string") {
             if (images.trim()) {
               productUpdates.images = [{ src: images }];
