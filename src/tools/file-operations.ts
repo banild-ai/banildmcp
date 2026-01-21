@@ -415,7 +415,7 @@ export function registerFileOperationTools(server: any) {
     async (args: any) => {
       const { name } = args;
       try {
-        const result = await callBanildToolsAPI("/option/get", "POST", { name });
+        const result = await callBanildToolsAPI("/option", "POST", { action: "get", name });
         return Responses.success(
           {
             name: result.name,
@@ -442,7 +442,7 @@ export function registerFileOperationTools(server: any) {
     async (args: any) => {
       const { name, value } = args;
       try {
-        const result = await callBanildToolsAPI("/option/set", "POST", { name, value });
+        const result = await callBanildToolsAPI("/option", "POST", { action: "set", name, value });
         return Responses.success(
           {
             name: result.name,
@@ -469,7 +469,7 @@ export function registerFileOperationTools(server: any) {
     async (args: any) => {
       const { name } = args;
       try {
-        const result = await callBanildToolsAPI("/option/delete", "POST", { name });
+        const result = await callBanildToolsAPI("/option", "POST", { action: "delete", name });
         return Responses.success(
           {
             name: result.name,
